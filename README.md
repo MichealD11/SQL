@@ -41,7 +41,7 @@ This invloves exploring the chocolate company's sales data to anwer questions li
 - How many times did we ship more than 1000 boxes in each month?
 
 
-
+💻 😄 
 
 
 
