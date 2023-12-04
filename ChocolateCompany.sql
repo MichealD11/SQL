@@ -1,0 +1,231 @@
+SHOW tables;
+DESCRIBE geo;
+DESCRIBE people;
+DESC products;
+DESC sales;
+
+-- SELECT ALL COLUMNS IN THE SALES TABLE
+SELECT * 
+FROM sales;
+
+-- SELECT ONLY FEW COLUMNS FROM THE TABLE
+SELECT customers, amount, saleDate, PID, GeoID
+FROM sales;
+
+-- CALCULATE THE AMOUNT PER BOX 
+SELECT *, Amount/Boxes AS 'Unit Box Amount'
+FROM SALES;
+
+-- SALE AMOUNT IS MORE THAN 10000 IN DESCENDING ORDER
+SELECT *
+FROM sales
+WHERE AMOUNT > 10000
+ORDER BY Amount DESC;
+
+-- SELECT ONLY THE G1 INFORMATIONS
+SELECT *
+FROM sales
+WHERE GeoID = 'G1'
+ORDER BY PID, Amount; 
+
+-- ALL SALES WHERE THE VALUE IS MORE THAN 1000 IN 2022
+
+SELECT *
+FROM sales
+-- WHERE Amount > 10000 AND SaleDate >= '2022-01-01'
+WHERE Amount > 10000 AND year(SaleDate) = 2022
+ORDER BY PID, Amount;
+
+-- ALL SALE THAT HAVE NUMBER OF BOXES NOT MORE THAN 50
+SELECT *
+FROM sales
+-- WHERE Boxes <= 50
+-- WHERE Boxes > 0 AND Boxes <= 50
+WHERE BOXES BETWEEN 0 AND 50
+ORDER BY Boxes DESC;
+
+-- ALL SHIPMENTS HAPPENING ON FRIDAYS
+SELECT Customers, SaleDate, weekday(SaleDate) AS 'Weekdays',
+		Amount, Boxes 
+FROM sales
+WHERE weekday(SaleDate) = 4;
+-- NOTE THAT IN MYSQL MONDAY = 0, WED = 2, FRI = 4, SUNDAY = 6
+
+
+SELECT * FROM people;
+
+-- NAMES OF SALESPERSONS IN DELISH OR JUCIES
+SELECT * 
+FROM people
+-- WHERE Team = 'Delish' OR Team = 'Jucies'
+WHERE Team IN ('Delish' , 'Jucies')
+	AND LOCATION = 'PARIS';
+    
+-- ALL NAMES THAT STARTS WITH 'B'
+SELECT * 
+FROM people
+WHERE Salesperson LIKE 'B%';
+
+-- ALL NAMES THAT HAS 'B' IN IT
+SELECT * 
+FROM people
+WHERE Salesperson LIKE '%B%';
+
+
+SELECT * FROM sales;
+
+-- CATEGORIZE AMOUNT IN COLUMN 
+SELECT * ,
+		CASE	WHEN Amount <= 1000 THEN 'Under 1K'
+				WHEN Amount BETWEEN 1000 AND 5000 THEN 'Under 5K'
+				WHEN Amount BETWEEN 5000 AND 10000 THEN 'Under 10K'
+			ELSE 'Over 10K'
+		END AS 'Amount Categories'
+FROM sales;
+
+
+-- SALESPERSON FOR EACH SPID
+SELECT s.SaleDate, 
+		s.SPID, 
+        p.Salesperson, 
+        s.Amount
+FROM sales s 
+JOIN people p
+	ON s.SPID = p.SPID;
+
+-- PRODUCT NAME OF EACH PRODUCT ID
+SELECT s.SaleDate,
+		Pr.pid,
+        pr.Product,
+        s.Amount
+FROM sales s
+LEFT JOIN products pr
+	ON s.PID = pr.PID;
+
+-- PRODUCT NAME AND PERSON NAME 
+SELECT s.SaleDate, s.SPID, p.Salesperson, pr.PID, pr.Product, s.Amount
+FROM sales s
+LEFT JOIN products pr
+		ON s.PID = pr.PID
+LEFT JOIN people p
+		ON s.SPID = p.SPID;
+
+-- SALESPERSON IN DELISH TEAM WITH AMOUNT LESS THAN 500  
+SELECT s.SaleDate, s.SPID, p.Salesperson, pr.PID, pr.Product, s.Amount, p.Team
+FROM sales s
+LEFT JOIN products pr
+		ON s.PID = pr.PID
+LEFT JOIN people p
+		ON s.SPID = p.SPID
+WHERE s.Amount < 500
+AND Team = 'Delish' 
+ORDER BY Amount;
+
+-- ONLY SALESPERSON WITHOUT A TEAM 
+SELECT s.SPID, p.Salesperson, p.Team
+FROM sales s
+LEFT JOIN products pr
+		ON s.PID = pr.PID
+LEFT JOIN people p
+		ON s.SPID = p.SPID
+WHERE s.Amount < 500
+-- AND Team IS NULL (THIS IS NOT WORKING BECAUSE THE BLANK SPACES IN THE Team COLUMN IS NOT CODED AS NULL)
+AND Team = '' ;
+
+-- SALESPERSONS AND ID WITHOUT A TEAM IN NEW ZEALAND AND INDIA 
+SELECT s.SPID, 
+		p.Salesperson,
+        g.Geo,
+        p.Team
+FROM sales s
+LEFT JOIN people p
+		ON s.SPID = p.SPID
+JOIN geo g
+		ON s.GeoID = g.GeoID
+WHERE Geo = 'India' OR Geo = 'New Zealand'
+HAVING p.Team = '';
+
+
+
+-- DETAILS OF SALES WHERE AMOUNTS ARE GREATER THAN 2000 AND BOXES ARE LESS THAN 100
+SELECT SPID,
+		Customers,
+        Amount,
+        Boxes
+FROM sales
+WHERE AMOUNT > 2000 AND Boxes < 100
+ORDER BY Amount;
+
+-- HOW MANY SALES EACH OF THE SALES PERSONS HAD IN THE MONTH OF JANUARY 2022
+SELECT P.Salesperson, COUNT(*) AS January2022_Sales
+FROM sales S
+JOIN people P
+	ON S.SPID = P.SPID
+WHERE SaleDate BETWEEN '2022-01-01' AND '2022-01-31'
+GROUP BY P.Salesperson;
+
+SELECT SPID, COUNT(*) AS January2022_Sales
+FROM  sales
+WHERE YEAR(SaleDate) = 2022
+	AND MONTH (SaleDate)= 1
+GROUP BY SPID;
+-- ORDER BY SPID
+
+-- WHICH PRODUCT SELLS MORE BOXES ? MILK BARS OR ECLAIRS
+SELECT PRO.Product, SUM(BOXES)
+FROM  sales S
+LEFT JOIN products  PRO
+	ON S.PID = PRO.PID
+WHERE PRO.product = 'MILK BARS' OR PRO.product = 'ECLAIRS'
+GROUP BY PRO.Product;
+
+-- WHICH PRODUCT SOLD MORE BOXES IN THE FIRST 7 DAYS OF FEBRUARY 2022? MILK BARS OR ECLAIRS
+SELECT PRO.Product, SUM(Boxes) AS 'TOTAL BOXES'
+FROM sales S
+JOIN products PRO
+	ON S.PID = PRO.PID
+WHERE PRO.product = 'MILK BARS' OR PRO.product = 'ECLAIRS'
+	AND SaleDate BETWEEN '2022-02-01' AND '2022-02-07'
+GROUP BY PRO.Product;
+
+-- WHICH SHIPMENT HAD UNDER 100 CUSTOMERS AND UNDER 100 BOXES ? DID ANY OF THEM OCCUR ON WEDNESDAY?
+SELECT *,
+	CASE WHEN WEEKDAY(SaleDate) = 2 THEN 'WEDNESDAY SHIPMENT' -- WEEKDAY = 2 IS WEDNESDAY
+		ELSE ''
+	END AS 'DAY'
+FROM SALES
+WHERE Customers < 100 AND Boxes < 100;
+
+
+-- WHAT ARE THE NAMES OF SALES PERSONS WHO HAD AT LEAST ONE SHIPMENT IN THE FIRST 7 DAYS OF JANUARY 2022?
+
+SELECT SaleDate, P.SPID, P.Salesperson,Boxes
+FROM sales s
+LEFT JOIN people p
+	ON S.SPID = P.SPID
+WHERE SaleDate BETWEEN '2022-01-01' AND '2022-01-07'
+AND Boxes >= 1
+ORDER BY SaleDate;
+
+-- WHICH SALES PERSON DID NOT MAKE ANY SHIPMENTS IN THE FIRST 7 DAYS OF JANUARY 2022?
+SELECT SaleDate, p.SPID, p.Salesperson, Boxes
+FROM sales s
+JOIN people p
+	ON S.SPID = p.SPID
+WHERE SaleDate BETWEEN '2022-01-01' AND '2022-01-07'
+	AND Boxes = 0;
+
+SELECT P.Salesperson
+FROM people p
+WHERE p.SPID NOT IN 
+		(SELECT DISTINCT S.SPID FROM SALES S 
+        WHERE S.SaleDate BETWEEN '2022-01-01' AND '2022-01-07');
+
+
+-- HOW MANY TIMES DID WE SHIP MORE THAN 1000 BOXES IN EACH MONTH?
+SELECT YEAR(SaleDate) AS YEAR, MONTH(SaleDate) AS MONTH, COUNT(*) AS '1K BOXES SHIPPED'
+FROM sales
+WHERE Boxes > 1000
+GROUP BY YEAR(SaleDate), MONTH(SaleDate)
+ORDER BY YEAR(SaleDate), MONTH(SaleDate);
+
