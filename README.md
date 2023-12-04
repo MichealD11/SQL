@@ -39,7 +39,8 @@ This invloves exploring the chocolate company's sales data to anwer questions li
 - What are the names of salesperson who had atleast one shipment in the first 7 days of january 2022?
 - Which salesperson did not make any shipments in the first 7 days of january 2022?
 - How many times did we ship more than 1000 boxes in each month?
-
+  
+---
 
 💻 😄 
 
