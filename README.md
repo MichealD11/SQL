@@ -2,11 +2,18 @@
 
 ## Project Overview
 
-This project is aimed at providing insight into the sales performance of a chocolate company for 2021 and 2022. By analyzing various aspects of the data, we seek to identify trends and gain a deeper understanding of the chocolate company's sales performance.
+This project is aimed at providing insight into the sales performance of a chocolate company for the year 2021 and 2022. By analyzing various aspects of the data, we seek to gain a deeper understanding of the chocolate company's sales performance by using the following SQL statements;
+
+- SELECT statement to answer business questions
+- Working with WHERE clause
+- Using AND, OR, NOT and combining them in queries
+- Using ORDER BY and LIMIT to sort reports
+- Joining data from different tables using JOINS
+- Creating reports using GROUP BY 
 
 ## Data Source
 
-The dataset used for this project analysis is the "......" file containing detailed data about each sale made by the chocolate company.
+The dataset used for this project analysis is the "chocolates-dataset.sql" file containing detailed data about each sale made by the chocolate company.
 
 ## Tool Used
 
@@ -39,7 +46,7 @@ This invloves exploring the chocolate company's sales data to anwer questions li
 - What are the names of salesperson who had atleast one shipment in the first 7 days of january 2022?
 - Which salesperson did not make any shipments in the first 7 days of january 2022?
 - How many times did we ship more than 1000 boxes in each month?
-  
+
 ---
 
 💻 😄 
